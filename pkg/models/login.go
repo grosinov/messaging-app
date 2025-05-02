@@ -1,5 +1,10 @@
 package models
 
+import "time"
+
 type Login struct {
-	// TODO: Implement Login model
+	ID        uint
+	UserID    uint `gorm:"foreignkey:UserID"`
+	TokenID   string
+	ExpiresAt time.Time
 }

@@ -1,14 +1,22 @@
 package controller
 
 import (
+	"github.com/challenge/pkg/errors"
 	"net/http"
 
 	"github.com/challenge/pkg/helpers"
-	"github.com/challenge/pkg/models"
 )
+
+type UserResponse struct {
+	ID uint `json:"id"`
+}
 
 // CreateUser creates a new user
 func (h Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	// TODO: Create a New User
-	helpers.RespondJSON(w, models.User{})
+	user, err := h.Service.CreateUser(r.FormValue("username"), r.FormValue("password"))
+	if err != nil {
+		errors.HandleError(w, err)
+	}
+
+	helpers.RespondJSON(w, UserResponse{ID: user.ID})
 }

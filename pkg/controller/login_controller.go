@@ -1,15 +1,26 @@
 package controller
 
 import (
-	"net/http"
-
+	"github.com/challenge/pkg/errors"
 	"github.com/challenge/pkg/helpers"
-	"github.com/challenge/pkg/models"
+	"net/http"
 )
+
+type LoginResponse struct {
+	ID    uint   `json:"id"`
+	Token string `json:"token"`
+}
 
 // Login authenticates a user and returns a token
 func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
-	// TODO: User must login and a token must be generated
+	username := r.FormValue("username")
+	password := r.FormValue("password")
 
-	helpers.RespondJSON(w, models.Login{})
+	id, token, err := h.Service.Login(username, password)
+	if err != nil {
+		errors.HandleError(w, err)
+		return
+	}
+
+	helpers.RespondJSON(w, LoginResponse{ID: id, Token: token})
 }
