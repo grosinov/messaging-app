@@ -8,7 +8,7 @@ import (
 )
 
 type UserResponse struct {
-	ID uint `json:"id"`
+	ID uint64 `json:"id"`
 }
 
 // CreateUser creates a new user

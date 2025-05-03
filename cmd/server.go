@@ -65,7 +65,7 @@ func main() {
 	})
 
 	// Messages
-	http.HandleFunc(MessagesEndpoint, auth.ValidateUser(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc(MessagesEndpoint, auth.ValidateUser(db)(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			h.GetMessages(w, r)

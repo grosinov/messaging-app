@@ -3,8 +3,8 @@ package models
 import "time"
 
 type Login struct {
-	ID        uint
-	UserID    uint `gorm:"foreignkey:UserID"`
+	ID        uint64
+	UserID    uint64 `gorm:"foreignkey:UserID"`
 	TokenID   string
 	ExpiresAt time.Time
 }

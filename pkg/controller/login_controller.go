@@ -7,7 +7,7 @@ import (
 )
 
 type LoginResponse struct {
-	ID    uint   `json:"id"`
+	ID    uint64 `json:"id"`
 	Token string `json:"token"`
 }
 

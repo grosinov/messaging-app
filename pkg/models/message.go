@@ -1,9 +1,12 @@
 package models
 
 type Message struct {
-	Id          int    `json:"id" db:"id"`
-	SenderId    int    `json:"sender_id" db:"sender_id"`
-	RecipientId int    `json:"recipient_id" db:"recipient_id"`
-	Type        string `json:"type" db:"type"`
-	Text        string `json:"text" db:"text"`
+	Id          uint64  `json:"id" db:"id"`
+	SenderId    uint64  `json:"sender_id" gorm:"foreignkey:SenderId" db:"sender_id"`
+	RecipientId uint64  `json:"recipient_id" db:"recipient_id"`
+	Timestamp   string  `json:"timestamp" db:"timestamp"`
+	Content     Content `json:"content" db:"content"`
+
+	Sender   User `gorm:"foreignKey:SenderID"`
+	Receiver User `gorm:"foreignKey:ReceiverID"`
 }

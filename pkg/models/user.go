@@ -1,8 +1,8 @@
 package models
 
 type User struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Token    string `json:"token"`
+	ID               uint64    `json:"id"`
+	Username         string    `json:"username"`
+	Password         string    `json:"password"`
+	ReceivedMessages []Message `gorm:"foreignKey:ReceiverID"`
 }
