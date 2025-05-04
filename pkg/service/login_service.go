@@ -1,18 +1,22 @@
 package service
 
 import (
+	"errors"
 	"github.com/challenge/pkg/auth"
 	httperrors "github.com/challenge/pkg/errors"
 	"github.com/challenge/pkg/models"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"time"
 )
 
 func (s ServiceImpl) Login(username, password string) (uint64, string, error) {
 	user, err := s.GetUserByUsername(username)
-	if err != nil {
-		return 0, "", err
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return 0, "", httperrors.BadRequestError("invalid username or password")
+	} else if err != nil {
+		return 0, "", httperrors.InternalServerError("an error occurred while trying to login", err)
 	}
 
 	if err = checkPassword(user, password); err != nil {

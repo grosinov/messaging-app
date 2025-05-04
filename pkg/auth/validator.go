@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-var JwtSecret = os.Getenv("JWT_SECRET_KEY")
+var JwtSecret = []byte(os.Getenv("JWT_SECRET_KEY"))
 
 // ValidateUser checks for a token and validates it
 // before allowing the method to execute

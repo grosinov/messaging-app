@@ -46,6 +46,10 @@ func (h Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 	recipientStr := r.FormValue("recipient")
 
 	recipient, err := h.validateUserFromStr(recipientStr)
+	if err != nil {
+		errors.HandleError(w, err)
+		return
+	}
 
 	startStr := r.FormValue("start")
 	start, err := strconv.ParseUint(startStr, 10, 64)
@@ -105,7 +109,7 @@ func (h Handler) validateUserFromStr(userIDstr string) (*models.User, error) {
 
 	user, err := h.Service.GetUser(userID)
 	if err != nil {
-		return nil, errors.InternalServerError("An error occurred while trying to get the sender", err)
+		return nil, err
 	}
 
 	return user, nil

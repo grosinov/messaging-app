@@ -28,10 +28,10 @@ func main() {
 	}
 
 	db := initDatabase()
-	appRepository := repository.RepositoryImpl{DB: db}
-	appService := service.ServiceImpl{Repository: appRepository}
+	appRepository := repository.NewRepository(db)
+	appService := service.NewService(appRepository)
 
-	h := controller.Handler{Service: appService}
+	h := controller.NewHandler(appService)
 
 	// Configure endpoints
 	// Health

@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/challenge/pkg/models"
 	"github.com/challenge/pkg/repository"
+	"github.com/stretchr/testify/mock"
 )
 
 type Service interface {
@@ -17,4 +18,15 @@ type Service interface {
 
 type ServiceImpl struct {
 	Repository repository.Repository
+}
+
+func NewService(repo repository.Repository) Service {
+	return &ServiceImpl{
+		Repository: repo,
+	}
+}
+
+// MockRepository is a mock repository for testing purposes
+type MockRepository struct {
+	mock.Mock
 }

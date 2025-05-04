@@ -6,7 +6,9 @@ type Message struct {
 	RecipientId uint64  `json:"recipient_id" db:"recipient_id"`
 	Timestamp   string  `json:"timestamp" db:"timestamp"`
 	Content     Content `json:"content" db:"content"`
+}
 
-	Sender   User `gorm:"foreignKey:SenderID"`
-	Receiver User `gorm:"foreignKey:ReceiverID"`
+type Content struct {
+	Type string `json:"type" db:"type"`
+	Text string `json:"text" db:"text"`
 }

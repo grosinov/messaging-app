@@ -13,15 +13,15 @@ func (s ServiceImpl) CreateUser(username, password string) (*models.User, error)
 	if err == nil {
 		return nil, httperrors.BadRequestError("user already exists")
 	}
-
-	hashedPassword, err := hashPassword(password)
-	if err != nil {
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, httperrors.InternalServerError("an error occurred while trying to create user", err)
 	}
 
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
 	user, err = s.Repository.CreateUser(models.User{
 		Username: username,
-		Password: hashedPassword,
+		Password: string(hashedPassword),
 	})
 	if err != nil {
 		return nil, httperrors.InternalServerError("an error occurred while trying to create user", err)
@@ -33,7 +33,7 @@ func (s ServiceImpl) CreateUser(username, password string) (*models.User, error)
 func (s ServiceImpl) GetUser(id uint64) (*models.User, error) {
 	user, err := s.Repository.GetUser(id)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, httperrors.BadRequestError("invalid username or password")
+		return nil, httperrors.BadRequestError("user not found")
 	} else if err != nil {
 		return nil, httperrors.InternalServerError("an error occurred while trying to login", err)
 	}
@@ -43,16 +43,9 @@ func (s ServiceImpl) GetUser(id uint64) (*models.User, error) {
 
 func (s ServiceImpl) GetUserByUsername(username string) (*models.User, error) {
 	user, err := s.Repository.GetUserByUsername(username)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, httperrors.BadRequestError("invalid username or password")
-	} else if err != nil {
-		return nil, httperrors.InternalServerError("an error occurred while trying to login", err)
+	if err != nil {
+		return nil, err
 	}
 
 	return user, nil
-}
-
-func hashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	return string(bytes), err
 }

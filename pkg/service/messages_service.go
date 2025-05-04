@@ -2,11 +2,17 @@ package service
 
 import (
 	httperrors "github.com/challenge/pkg/errors"
+	"github.com/challenge/pkg/helpers"
 	"github.com/challenge/pkg/models"
 	"time"
 )
 
 func (s ServiceImpl) SendMessage(sender, recipient uint64, content *models.Content) (*models.Message, error) {
+	valid := helpers.MessageTypes[content.Type]
+	if !valid {
+		return nil, httperrors.BadRequestError("invalid message type")
+	}
+
 	message := &models.Message{
 		SenderId:    sender,
 		RecipientId: recipient,

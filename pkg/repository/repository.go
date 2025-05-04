@@ -10,11 +10,16 @@ type Repository interface {
 	CreateUser(user models.User) (*models.User, error)
 	GetUser(id uint64) (*models.User, error)
 	GetUserByUsername(username string) (*models.User, error)
-	CreateLoginSession(login *models.Login) (*models.Login, error)
 	SaveMessage(message *models.Message) (*models.Message, error)
 	GetMessagesFromUser(id, start, limit uint64) ([]models.Message, error)
 }
 
 type RepositoryImpl struct {
 	DB *gorm.DB
+}
+
+func NewRepository(db *gorm.DB) Repository {
+	return &RepositoryImpl{
+		DB: db,
+	}
 }
