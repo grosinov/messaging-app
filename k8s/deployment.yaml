@@ -1,1 +1,40 @@
-#TODO: Create a manifest to deploy in k8s
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messageing-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: messageing-app
+  template:
+    metadata:
+      labels:
+        app: messageing-app
+    spec:
+      containers:
+        - name: messageing-app
+          image: messageing-app:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_SECRET_KEY
+            - name: SQLITE_DSN
+              value: "sqlite-dns"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: messageing-app
+spec:
+  selector:
+    app: messageing-app
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
