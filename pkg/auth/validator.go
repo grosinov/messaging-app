@@ -6,6 +6,7 @@ import (
 	"github.com/challenge/pkg/models"
 	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -21,6 +22,7 @@ func ValidateUser(db *gorm.DB) func(_ http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
 			if !strings.HasPrefix(authHeader, "Bearer ") {
+				log.Println("Invalid token: token not start with bearer")
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
@@ -35,29 +37,35 @@ func ValidateUser(db *gorm.DB) func(_ http.HandlerFunc) http.HandlerFunc {
 			})
 
 			if err != nil || !token.Valid {
+				log.Println(err)
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
 
 			claims, ok := token.Claims.(jwt.MapClaims)
 			if !ok {
+				log.Println("Invalid token: claims not map claims")
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
 
 			if exp, ok := claims["exp"].(float64); !ok || float64(time.Now().Unix()) > exp {
+				log.Println("Invalid token: token expired")
 				http.Error(w, "Token expired", http.StatusUnauthorized)
 				return
 			}
 
-			userID, ok := claims["user_id"].(string)
+			userIDraw, ok := claims["user_id"].(float64)
 			if !ok {
 				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
 
+			userID := uint64(userIDraw)
+
 			var user models.User
 			if err := db.Where("id = ?", userID).First(&user).Error; err != nil {
+				log.Println("User not found")
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}

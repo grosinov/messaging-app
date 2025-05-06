@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/challenge/pkg/models"
 	"github.com/challenge/pkg/repository"
 	"github.com/challenge/pkg/service"
 	"gorm.io/driver/sqlite"
@@ -91,6 +92,11 @@ func initDatabase() *gorm.DB {
 	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
+	}
+
+	err = db.AutoMigrate(&models.User{}, &models.Message{})
+	if err != nil {
+		log.Fatalf("Failed to migrate database: %v", err)
 	}
 
 	return db

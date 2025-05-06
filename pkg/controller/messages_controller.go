@@ -17,18 +17,31 @@ type MessageResponse struct {
 
 // SendMessage send a message from one user to another
 func (h Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
-	requestUser := r.Context().Value("username").(string)
-	senderStr := r.FormValue("sender")
-	recipientStr := r.FormValue("recipient")
-	contentStr := r.FormValue("content")
+	requestUser := r.Context().Value("user_id")
+	var req models.Message
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
 
-	senderID, recipientID, content, err := h.validateMessageSending(senderStr, recipientStr, contentStr, requestUser)
+	_, err := h.Service.GetUser(req.SenderID)
 	if err != nil {
 		errors.HandleError(w, err)
 		return
 	}
 
-	message, err := h.Service.SendMessage(senderID, recipientID, content)
+	_, err = h.Service.GetUser(req.RecipientID)
+	if err != nil {
+		errors.HandleError(w, err)
+		return
+	}
+
+	if req.SenderID != requestUser {
+		http.Error(w, "Unauthorized", http.StatusForbidden)
+		return
+	}
+
+	message, err := h.Service.SendMessage(req.SenderID, req.RecipientID, &req.Content)
 	if err != nil {
 		errors.HandleError(w, err)
 		return
@@ -42,10 +55,16 @@ func (h Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 
 // GetMessages get the messages from the logged user to a recipient
 func (h Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
-	requestUser := r.Context().Value("username").(string)
+	requestUser := r.Context().Value("user_id")
 	recipientStr := r.FormValue("recipient")
 
-	recipient, err := h.validateUserFromStr(recipientStr)
+	recipientID, err := strconv.ParseUint(recipientStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid recipient ID", http.StatusBadRequest)
+		return
+	}
+
+	_, err = h.Service.GetUser(recipientID)
 	if err != nil {
 		errors.HandleError(w, err)
 		return
@@ -55,50 +74,28 @@ func (h Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 	start, err := strconv.ParseUint(startStr, 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid start value", http.StatusBadRequest)
+		return
 	}
+
 	limitStr := r.FormValue("limit")
 	if limitStr == "" {
-		limitStr = "100"
+		limitStr = helpers.DefaultMessagesLimit
 	}
+
 	limit, err := strconv.ParseUint(limitStr, 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid limit value", http.StatusBadRequest)
+		return
 	}
 
-	if recipient.Username != requestUser {
+	if recipientID != requestUser {
 		http.Error(w, "You are not allowed to get messages from this user", http.StatusForbidden)
+		return
 	}
 
-	messages, err := h.Service.GetMessages(recipient.ID, start, limit)
+	messages, err := h.Service.GetMessages(recipientID, start, limit)
 
 	helpers.RespondJSON(w, messages)
-}
-
-func (h Handler) validateMessageSending(senderStr, recipientStr, contentStr, requestUser string) (uint64, uint64, *models.Content, error) {
-	sender, err := h.validateUserFromStr(senderStr)
-	if err != nil {
-		return 0, 0, nil, err
-	}
-
-	recipient, err := h.validateUserFromStr(recipientStr)
-	if err != nil {
-		return 0, 0, nil, err
-	}
-
-	var content *models.Content
-	err = json.Unmarshal([]byte(contentStr), &content)
-	if err != nil {
-		return 0, 0, nil, errors.BadRequestError("Invalid content")
-	}
-
-	if sender.Username != requestUser {
-		return 0, 0, nil, errors.ErrorResponse{
-			Status:  http.StatusForbidden,
-			Message: "You are not allowed to send messages from this user",
-		}
-	}
-
-	return sender.ID, recipient.ID, content, nil
 }
 
 func (h Handler) validateUserFromStr(userIDstr string) (*models.User, error) {

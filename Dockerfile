@@ -1,4 +1,4 @@
-FROM golang:1.21
+FROM golang:1.23
 
 WORKDIR /app
 
@@ -7,8 +7,8 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o app .
+RUN go build -o app ./cmd/server.go
 
 EXPOSE 8080
 
-ENTRYPOINT ["/app"]
+ENTRYPOINT ["./app"]

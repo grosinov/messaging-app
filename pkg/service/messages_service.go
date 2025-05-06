@@ -14,8 +14,8 @@ func (s ServiceImpl) SendMessage(sender, recipient uint64, content *models.Conte
 	}
 
 	message := &models.Message{
-		SenderId:    sender,
-		RecipientId: recipient,
+		SenderID:    sender,
+		RecipientID: recipient,
 		Content:     *content,
 		Timestamp:   time.DateTime,
 	}

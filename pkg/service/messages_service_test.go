@@ -123,8 +123,8 @@ func TestGetMessages(t *testing.T) {
 				mockRepo.On("GetMessagesFromUser", uint64(1), uint64(0), uint64(100)).Return([]models.Message{
 					{
 						Id:          1,
-						SenderId:    1,
-						RecipientId: 2,
+						SenderID:    1,
+						RecipientID: 2,
 						Content: models.Content{
 							Type: "text",
 							Text: "test message",
