@@ -5,6 +5,7 @@ import (
 	"github.com/challenge/pkg/auth"
 	httperrors "github.com/challenge/pkg/errors"
 	"github.com/challenge/pkg/models"
+	"github.com/challenge/pkg/repository"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
@@ -14,7 +15,7 @@ import (
 
 func TestServiceImpl_Login(t *testing.T) {
 	auth.JwtSecret = []byte("testsecret")
-	mockRepo := new(MockRepository)
+	mockRepo := new(repository.MockRepository)
 	service := NewService(mockRepo)
 
 	tests := []struct {

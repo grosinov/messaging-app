@@ -17,7 +17,7 @@ func (s ServiceImpl) SendMessage(sender, recipient uint64, content *models.Conte
 		SenderID:    sender,
 		RecipientID: recipient,
 		Content:     *content,
-		Timestamp:   time.DateTime,
+		Timestamp:   time.Now().String(),
 	}
 
 	message, err := s.Repository.SaveMessage(message)

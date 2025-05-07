@@ -4,6 +4,7 @@ import (
 	"errors"
 	httperrors "github.com/challenge/pkg/errors"
 	"github.com/challenge/pkg/models"
+	"github.com/challenge/pkg/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"golang.org/x/crypto/bcrypt"
@@ -11,32 +12,8 @@ import (
 	"testing"
 )
 
-func (m *MockRepository) CreateUser(user models.User) (*models.User, error) {
-	args := m.Called(user)
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).(*models.User), args.Error(1)
-}
-
-func (m *MockRepository) GetUser(id uint64) (*models.User, error) {
-	args := m.Called(id)
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).(*models.User), args.Error(1)
-}
-
-func (m *MockRepository) GetUserByUsername(username string) (*models.User, error) {
-	args := m.Called(username)
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).(*models.User), args.Error(1)
-}
-
 func TestServiceImpl_CreateUser(t *testing.T) {
-	mockRepo := new(MockRepository)
+	mockRepo := new(repository.MockRepository)
 	svc := NewService(mockRepo)
 
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
@@ -125,20 +102,20 @@ func TestServiceImpl_CreateUser(t *testing.T) {
 }
 
 func TestServiceImpl_GetUser(t *testing.T) {
-	mockRepo := new(MockRepository)
+	mockRepo := new(repository.MockRepository)
 	svc := NewService(mockRepo)
 
 	tests := []struct {
 		name          string
 		userID        uint64
-		mockSetup     func(m *MockRepository)
+		mockSetup     func(m *repository.MockRepository)
 		expectedUser  *models.User
 		expectedError error
 	}{
 		{
 			name:   "Successful Get User",
 			userID: 1,
-			mockSetup: func(m *MockRepository) {
+			mockSetup: func(m *repository.MockRepository) {
 				expectedUser := &models.User{ID: 1, Username: "testuser"}
 				m.On("GetUser", uint64(1)).Return(expectedUser, nil)
 			},
@@ -148,7 +125,7 @@ func TestServiceImpl_GetUser(t *testing.T) {
 		{
 			name:   "User Not Found",
 			userID: 1,
-			mockSetup: func(m *MockRepository) {
+			mockSetup: func(m *repository.MockRepository) {
 				m.On("GetUser", uint64(1)).Return(nil, gorm.ErrRecordNotFound).Once()
 			},
 			expectedUser:  nil,
@@ -157,7 +134,7 @@ func TestServiceImpl_GetUser(t *testing.T) {
 		{
 			name:   "failed to get user",
 			userID: 1,
-			mockSetup: func(m *MockRepository) {
+			mockSetup: func(m *repository.MockRepository) {
 				m.On("GetUser", uint64(1)).Return(nil, errors.New("db error")).Once()
 			},
 			expectedUser:  nil,
@@ -184,7 +161,7 @@ func TestServiceImpl_GetUser(t *testing.T) {
 }
 
 func TestServiceImpl_GetUserByUsername(t *testing.T) {
-	mockRepo := new(MockRepository)
+	mockRepo := new(repository.MockRepository)
 	svc := NewService(mockRepo)
 
 	tests := []struct {

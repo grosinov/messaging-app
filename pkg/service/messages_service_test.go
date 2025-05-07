@@ -4,30 +4,15 @@ import (
 	"errors"
 	httperrors "github.com/challenge/pkg/errors"
 	"github.com/challenge/pkg/models"
+	"github.com/challenge/pkg/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
 	"time"
 )
 
-func (m *MockRepository) SaveMessage(message *models.Message) (*models.Message, error) {
-	args := m.Called(message)
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).(*models.Message), args.Error(1)
-}
-
-func (m *MockRepository) GetMessagesFromUser(id, start, limit uint64) ([]models.Message, error) {
-	args := m.Called(id, start, limit)
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).([]models.Message), args.Error(1)
-}
-
 func TestSendMessage(t *testing.T) {
-	mockRepo := new(MockRepository)
+	mockRepo := new(repository.MockRepository)
 
 	tests := []struct {
 		name          string
@@ -48,8 +33,8 @@ func TestSendMessage(t *testing.T) {
 			setupMocks: func() {
 				mockRepo.On("SaveMessage", mock.Anything).Return(&models.Message{
 					Id:          1,
-					SenderId:    1,
-					RecipientId: 2,
+					SenderID:    1,
+					RecipientID: 2,
 					Content: models.Content{
 						Type: "text",
 						Text: "test message",
@@ -104,7 +89,7 @@ func TestSendMessage(t *testing.T) {
 }
 
 func TestGetMessages(t *testing.T) {
-	mockRepo := new(MockRepository)
+	mockRepo := new(repository.MockRepository)
 
 	tests := []struct {
 		name          string

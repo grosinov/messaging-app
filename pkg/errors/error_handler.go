@@ -31,7 +31,7 @@ func NotFoundError(msg string) ErrorResponse {
 
 func InternalServerError(msg string, err error) ErrorResponse {
 	return ErrorResponse{
-		Status:  http.StatusNotFound,
+		Status:  http.StatusInternalServerError,
 		Message: fmt.Sprintf("%s: %s", msg, err),
 	}
 }
@@ -41,6 +41,6 @@ func HandleError(w http.ResponseWriter, err error) {
 	if errors.As(err, &er) {
 		http.Error(w, er.Error(), er.Status)
 	} else {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Internal Server Error: %v", err), http.StatusInternalServerError)
 	}
 }

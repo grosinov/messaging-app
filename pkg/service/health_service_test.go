@@ -3,18 +3,14 @@ package service
 import (
 	"errors"
 	httperrors "github.com/challenge/pkg/errors"
+	"github.com/challenge/pkg/repository"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 )
 
-func (m *MockRepository) HealthCheck() error {
-	args := m.Called()
-	return args.Error(0)
-}
-
 func TestServiceImpl_Health(t *testing.T) {
-	mockRepo := new(MockRepository)
+	mockRepo := new(repository.MockRepository)
 	svc := NewService(mockRepo)
 
 	tests := []struct {

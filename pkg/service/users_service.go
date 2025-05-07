@@ -19,7 +19,7 @@ func (s ServiceImpl) CreateUser(username, password string) (*models.User, error)
 
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
-	user, err = s.Repository.CreateUser(models.User{
+	user, err = s.Repository.CreateUser(&models.User{
 		Username: username,
 		Password: string(hashedPassword),
 	})

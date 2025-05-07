@@ -2,7 +2,11 @@ package repository
 
 func (r RepositoryImpl) HealthCheck() error {
 	db, err := r.DB.DB()
-	if err != nil || db.Ping() != nil {
+	if err != nil {
+		return err
+	}
+
+	if err := db.Ping(); err != nil {
 		return err
 	}
 

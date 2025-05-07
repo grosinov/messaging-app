@@ -14,13 +14,13 @@ import (
 func (s ServiceImpl) Login(username, password string) (uint64, string, error) {
 	user, err := s.GetUserByUsername(username)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return 0, "", httperrors.BadRequestError("invalid username or password")
+		return 0, "", httperrors.BadRequestError("Invalid username or password")
 	} else if err != nil {
-		return 0, "", httperrors.InternalServerError("an error occurred while trying to login", err)
+		return 0, "", httperrors.InternalServerError("An error occurred while trying to login", err)
 	}
 
 	if err = checkPassword(user, password); err != nil {
-		return 0, "", httperrors.BadRequestError("invalid username or password")
+		return 0, "", httperrors.BadRequestError("Invalid username or password")
 	}
 
 	expTime := time.Now().Add(time.Hour * 24)
