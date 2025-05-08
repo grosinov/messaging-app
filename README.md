@@ -47,8 +47,6 @@ docker run -p 8080:8080 \
 - **POST** `/check`  
   Returns a basic health status of the service and its database connection.
 
----
-
 ### Users
 
 #### Create User
@@ -67,8 +65,6 @@ docker run -p 8080:8080 \
     "id": 1
   }
   ```
-
----
 
 ### Authentication
 
