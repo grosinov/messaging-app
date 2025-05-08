@@ -37,7 +37,7 @@ func (h Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.SenderID != requestUser {
-		http.Error(w, "Unauthorized", http.StatusForbidden)
+		http.Error(w, "You are not allowed to send messages from this user", http.StatusForbidden)
 		return
 	}
 
@@ -71,7 +71,7 @@ func (h Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	startStr := r.FormValue("start")
-	start, err := strconv.ParseUint(startStr, 10, 64)
+	start, err := strconv.ParseUint(startStr, 10, 32)
 	if err != nil {
 		http.Error(w, "Invalid start value", http.StatusBadRequest)
 		return
@@ -82,7 +82,7 @@ func (h Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 		limitStr = helpers.DefaultMessagesLimit
 	}
 
-	limit, err := strconv.ParseUint(limitStr, 10, 64)
+	limit, err := strconv.ParseUint(limitStr, 10, 32)
 	if err != nil {
 		http.Error(w, "Invalid limit value", http.StatusBadRequest)
 		return
@@ -94,6 +94,10 @@ func (h Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	messages, err := h.Service.GetMessages(recipientID, start, limit)
+	if err != nil {
+		errors.HandleError(w, err)
+		return
+	}
 
 	helpers.RespondJSON(w, messages)
 }

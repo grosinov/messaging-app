@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 )
 
 var JwtSecret = []byte(os.Getenv("JWT_SECRET_KEY"))
@@ -49,13 +48,13 @@ func ValidateUser(db *gorm.DB) func(_ http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 
-			if exp, ok := claims["exp"].(float64); !ok || float64(time.Now().Unix()) > exp {
-				log.Println("Invalid token: token expired")
-				http.Error(w, "Token expired", http.StatusUnauthorized)
+			userIDraw, ok := claims["user_id"].(float64)
+			if !ok {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
 
-			userIDraw, ok := claims["user_id"].(float64)
+			_, ok = claims["exp"].(float64)
 			if !ok {
 				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return

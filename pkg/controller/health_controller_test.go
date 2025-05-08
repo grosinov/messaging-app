@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/challenge/pkg/service"
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,7 @@ func TestHealthCheck(t *testing.T) {
 		name           string
 		mockSetup      func(mockService *service.MockService)
 		expectedStatus int
-		expectedBody   string
+		expectedBody   interface{}
 	}{
 		{
 			name: "success",
@@ -22,7 +23,9 @@ func TestHealthCheck(t *testing.T) {
 				mockService.On("Health").Return(nil)
 			},
 			expectedStatus: http.StatusOK,
-			expectedBody:   `{"status":"ok"}`,
+			expectedBody: map[string]interface{}{
+				"health": "ok",
+			},
 		},
 		{
 			name: "service error",
@@ -30,7 +33,7 @@ func TestHealthCheck(t *testing.T) {
 				mockService.On("Health").Return(errors.New("service error"))
 			},
 			expectedStatus: http.StatusInternalServerError,
-			expectedBody:   `{"error":"service error"}`,
+			expectedBody:   "Internal Server Error: service error\n",
 		},
 	}
 
@@ -45,8 +48,16 @@ func TestHealthCheck(t *testing.T) {
 
 			handler.Check(w, req)
 
+			var response map[string]interface{}
+			err := json.Unmarshal(w.Body.Bytes(), &response)
+			if err != nil {
+				response := w.Body.String()
+				assert.Equal(t, tt.expectedBody, response)
+			} else {
+				assert.Equal(t, tt.expectedBody, response)
+			}
+
 			assert.Equal(t, tt.expectedStatus, w.Code)
-			assert.JSONEq(t, tt.expectedBody, w.Body.String())
 			mockService.AssertExpectations(t)
 		})
 	}

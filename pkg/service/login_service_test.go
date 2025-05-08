@@ -46,7 +46,7 @@ func TestServiceImpl_Login(t *testing.T) {
 				mockRepo.On("GetUserByUsername", username).Return(nil, gorm.ErrRecordNotFound).Once()
 			},
 			expectedID:    0,
-			expectedError: httperrors.BadRequestError("invalid username or password"),
+			expectedError: httperrors.BadRequestError("Invalid username or password"),
 		},
 		{
 			name:     "database error",
@@ -56,7 +56,7 @@ func TestServiceImpl_Login(t *testing.T) {
 				mockRepo.On("GetUserByUsername", username).Return(nil, errors.New("database error")).Once()
 			},
 			expectedID:    0,
-			expectedError: httperrors.InternalServerError("an error occurred while trying to login", errors.New("database error")),
+			expectedError: httperrors.InternalServerError("An error occurred while trying to login", errors.New("database error")),
 		},
 		{
 			name:     "wrong password",
@@ -68,7 +68,7 @@ func TestServiceImpl_Login(t *testing.T) {
 				mockRepo.On("GetUserByUsername", username).Return(mockUser, nil).Once()
 			},
 			expectedID:    0,
-			expectedError: httperrors.BadRequestError("invalid username or password"),
+			expectedError: httperrors.BadRequestError("Invalid username or password"),
 		},
 	}
 

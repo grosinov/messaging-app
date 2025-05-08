@@ -53,5 +53,8 @@ func (m *MockService) SendMessage(sender, recipient uint64, content *models.Cont
 
 func (m *MockService) GetMessages(id, start, limit uint64) ([]models.Message, error) {
 	args := m.Called(id, start, limit)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
 	return args.Get(0).([]models.Message), args.Error(1)
 }

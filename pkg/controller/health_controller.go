@@ -8,7 +8,7 @@ import (
 )
 
 type HealthResponse struct {
-	Health string
+	Health string `json:"health"`
 }
 
 // Check returns the health of the service and DB
@@ -19,5 +19,5 @@ func (h Handler) Check(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.RespondJSON(w, HealthResponse{Health: "OK"})
+	helpers.RespondJSON(w, HealthResponse{Health: "ok"})
 }
